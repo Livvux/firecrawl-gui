@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+  background-color: #f8fafc;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #020617;
-  color: #f8fafc;
+  background: radial-gradient(circle at top, #ffffff 0%, #f1f5f9 55%, #e2e8f0 100%);
+  color: #0f172a;
+  font-feature-settings: "liga" 1, "kern" 1;
 }
 
 a {
@@ -16,9 +18,18 @@ a {
   text-decoration: none;
 }
 
+a:hover {
+  text-decoration: underline;
+}
+
 button:focus-visible,
 input:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid rgb(94 234 212);
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(249 115 22);
   outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(249, 115, 22, 0.18);
 }

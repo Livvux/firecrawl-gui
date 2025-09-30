@@ -19,36 +19,36 @@ export const metadata: Metadata = {
   description: "Minimal client for self-hosted Firecrawl v2 APIs",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-slate-950 text-slate-100 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-transparent text-slate-900 antialiased`}
       >
-        <div className="min-h-screen bg-slate-950">
-          <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
-            <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                  Firecrawl
-                </p>
-                <h1 className="text-2xl font-semibold text-white">
-                  Self-Hosted Console
-                </h1>
-                <p className="mt-1 text-sm text-slate-400">
-                  Manage requests against your Firecrawl v2 instance.
-                </p>
+        <div className="relative min-h-screen">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,1)_0%,_rgba(241,245,249,0.9)_55%,_rgba(226,232,240,0.6)_100%)]"
+          />
+          <header className="border-b border-slate-200/80 bg-white/70 backdrop-blur">
+            <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4 lg:px-8">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-500/10 text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
+                  FC
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-400">
+                    Firecrawl
+                  </p>
+                  <h1 className="text-lg font-semibold text-slate-900">
+                    Playground Console
+                  </h1>
+                </div>
               </div>
               <Navigation />
             </div>
           </header>
-          <main className="mx-auto flex max-w-6xl flex-1 flex-col gap-8 px-4 py-8">
-            {children}
-          </main>
+          <main className="mx-auto w-full max-w-5xl px-6 py-12 lg:px-8">{children}</main>
         </div>
       </body>
     </html>

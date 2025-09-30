@@ -28,22 +28,33 @@ export const usePolling = <T,>(
   const [isLoading, setIsLoading] = useState<boolean>(autoStart);
   const [isActive, setIsActive] = useState<boolean>(autoStart);
 
+  const isActiveRef = useRef<boolean>(autoStart);
   const controllerRef = useRef<AbortController | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const onErrorRef = useRef<typeof onError>(undefined);
+  const transformRef = useRef<typeof transform>(undefined);
 
-  const clearController = () => {
+  onErrorRef.current = onError;
+  transformRef.current = transform;
+
+  const clearController = useCallback(() => {
     controllerRef.current?.abort();
     controllerRef.current = null;
-  };
+  }, []);
 
   const stop = useCallback(() => {
+    if (!isActiveRef.current && !controllerRef.current) {
+      return;
+    }
+    isActiveRef.current = false;
     setIsActive(false);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
     clearController();
-  }, []);
+    setIsLoading(false);
+  }, [clearController]);
 
   const execute = useCallback(async () => {
     clearController();
@@ -52,7 +63,8 @@ export const usePolling = <T,>(
     setIsLoading(true);
     try {
       const result = await fetcher(controller.signal);
-      setData(transform ? transform(result) : result);
+      const mapper = transformRef.current;
+      setData(mapper ? mapper(result) : result);
       setError(undefined);
     } catch (err) {
       if ((err as Error).name === "AbortError") {
@@ -60,20 +72,23 @@ export const usePolling = <T,>(
       }
       const errorObject = err instanceof Error ? err : new Error(String(err));
       setError(errorObject);
-      onError?.(errorObject);
+      const handler = onErrorRef.current;
+      handler?.(errorObject);
     } finally {
       setIsLoading(false);
     }
-  }, [fetcher, onError, transform]);
+  }, [clearController, fetcher]);
 
   const start = useCallback(() => {
-    if (isActive) {
-      return;
+    if (!isActiveRef.current) {
+      isActiveRef.current = true;
+      setIsActive(true);
     }
-    setIsActive(true);
     execute();
-    intervalRef.current = setInterval(execute, intervalMs);
-  }, [execute, intervalMs, isActive]);
+    if (!intervalRef.current) {
+      intervalRef.current = setInterval(execute, intervalMs);
+    }
+  }, [execute, intervalMs]);
 
   useEffect(() => {
     if (!autoStart) {

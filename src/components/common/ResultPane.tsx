@@ -7,6 +7,8 @@ interface ResultPaneProps {
   data?: JsonValue;
   error?: string;
   isLoading?: boolean;
+  preview?: string;
+  onClosePreview?: () => void;
 }
 
 const prettyPrint = (value: JsonValue | undefined) => {
@@ -20,10 +22,8 @@ const prettyPrint = (value: JsonValue | undefined) => {
   }
 };
 
-export const ResultPane = ({ data, error: errorMessage, isLoading }: ResultPaneProps) => {
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
-    "idle",
-  );
+export const ResultPane = ({ data, error: errorMessage, isLoading, preview, onClosePreview }: ResultPaneProps) => {
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
   const [isOpen, setIsOpen] = useState(true);
 
   const content = errorMessage ?? prettyPrint(data);
@@ -57,23 +57,23 @@ export const ResultPane = ({ data, error: errorMessage, isLoading }: ResultPaneP
   };
 
   return (
-    <section className="flex h-full flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 text-sm text-slate-300">
+    <section className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/40">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3 text-sm text-slate-600">
           <button
             type="button"
             onClick={() => setIsOpen((prev) => !prev)}
-            className="rounded-md border border-slate-700 px-2 py-1 text-xs uppercase tracking-wide text-slate-200 transition hover:border-cyan-400 hover:text-white"
+            className="rounded-full border border-slate-200 px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-500 transition hover:bg-slate-100"
           >
             {isOpen ? "Collapse" : "Expand"}
           </button>
-          <span className="font-medium text-slate-300">Response</span>
+          <span className="font-medium text-slate-700">Response</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded-md border border-slate-700 px-3 py-1 transition hover:border-slate-500"
+            className="rounded-full border border-slate-200 px-3 py-1 transition hover:bg-slate-100"
           >
             {copyState === "copied"
               ? "Copied"
@@ -86,23 +86,40 @@ export const ResultPane = ({ data, error: errorMessage, isLoading }: ResultPaneP
             onClick={handleDownload}
             className={
               content
-                ? "rounded-md border border-slate-700 px-3 py-1 transition hover:border-slate-500"
-                : "rounded-md border border-slate-800 px-3 py-1 text-slate-500"
+                ? "rounded-full border border-slate-200 px-3 py-1 transition hover:bg-slate-100"
+                : "rounded-full border border-slate-100 px-3 py-1 text-slate-300"
             }
             disabled={!content}
           >
             Download
           </button>
         </div>
-      </div>
+      </header>
+      {preview && (
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-xs text-slate-600">
+          <div className="flex items-center justify-between">
+            <span className="font-medium uppercase tracking-[0.24em] text-slate-500">
+              Request payload
+            </span>
+            <button
+              type="button"
+              className="text-xs text-slate-400 underline hover:text-slate-600"
+              onClick={onClosePreview}
+            >
+              Hide
+            </button>
+          </div>
+          <pre className="overflow-auto text-xs leading-relaxed">{preview}</pre>
+        </div>
+      )}
       {isOpen && (
-        <div className="relative flex-1">
-          <pre className="h-72 overflow-auto rounded-lg bg-slate-950/70 p-4 text-xs leading-relaxed text-slate-200">
+        <div className="relative">
+          <pre className="h-72 overflow-auto rounded-2xl bg-slate-900/95 p-4 font-mono text-xs leading-relaxed text-slate-100">
             {isLoading ? "Loading..." : content || "No data yet."}
           </pre>
         </div>
       )}
-      {errorMessage && <p className="text-xs text-rose-300">{errorMessage}</p>}
+      {errorMessage && <p className="text-xs text-rose-500">{errorMessage}</p>}
     </section>
   );
 };

@@ -11,7 +11,7 @@ const quickLinks = [
   {
     href: "/playground",
     title: "API Playground",
-    description: "Send scrape, search, crawl, and extract requests with JSON payloads.",
+    description: "Send scrape, search, crawl, and map requests with guided forms.",
   },
   {
     href: "/activity",
@@ -69,6 +69,13 @@ export default function OverviewPage() {
     try {
       const response = await client.health();
       setHealth(response);
+
+      const info = response.info as Record<string, unknown> | undefined;
+      const usedFallback = typeof info?.fallback === "boolean" ? (info.fallback as boolean) : false;
+      setHealthUnsupported(usedFallback);
+
+      const note = typeof info?.note === "string" ? (info.note as string) : undefined;
+      setHealthNotice(note);
     } catch (error) {
       setHealth(undefined);
       if (error instanceof FirecrawlError) {
@@ -76,7 +83,7 @@ export default function OverviewPage() {
           setHealthUnsupported(true);
           setErrorMessage(undefined);
           setHealthNotice(
-            "Self-hosted Instanzen liefern häufig 404 auf /v2/health. Wir haben den Check übersprungen – Sende einfach eine Testanfrage im Playground.",
+            "This Firecrawl build does not expose /v2/health. Try a Playground request to confirm connectivity.",
           );
           setHealth({ status: "unknown" });
         } else {
@@ -110,12 +117,12 @@ export default function OverviewPage() {
           <Link
             key={link.href}
             href={link.href}
-            className="group rounded-2xl border border-slate-800 bg-slate-900/30 p-5 transition hover:border-cyan-400 hover:bg-slate-900/60"
+            className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-md shadow-slate-200/40 transition hover:-translate-y-1 hover:shadow-lg"
           >
-            <h3 className="text-lg font-semibold text-white group-hover:text-cyan-200">
+            <h3 className="text-lg font-semibold text-slate-900 group-hover:text-orange-500">
               {link.title}
             </h3>
-            <p className="mt-2 text-sm text-slate-400">{link.description}</p>
+            <p className="mt-2 text-sm text-slate-500">{link.description}</p>
           </Link>
         ))}
       </section>

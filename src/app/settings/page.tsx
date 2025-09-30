@@ -19,18 +19,18 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h2 className="text-lg font-semibold text-white">Server settings</h2>
-        <p className="mt-1 text-sm text-slate-400">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">Server settings</h2>
+        <p className="mt-1 text-sm text-slate-500">
           Update the base URL and API key used for all requests.
         </p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <span className="text-xs font-medium uppercase tracking-[0.25em] text-slate-400">
               Server base URL
             </span>
             <input
-              className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-cyan-400"
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-inner focus:border-orange-400"
               value={config.baseUrl}
               onChange={(event) => updateConfig({ baseUrl: event.target.value })}
               onBlur={handleBlur}
@@ -38,15 +38,15 @@ export default function SettingsPage() {
               autoComplete="url"
             />
             {validationMessage && (
-              <span className="text-xs text-rose-400">{validationMessage}</span>
+              <span className="text-xs text-rose-500">{validationMessage}</span>
             )}
           </label>
           <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <span className="text-xs font-medium uppercase tracking-[0.25em] text-slate-400">
               API key (optional)
             </span>
             <input
-              className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-cyan-400"
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-inner focus:border-orange-400"
               value={config.apiKey}
               onChange={(event) => updateConfig({ apiKey: event.target.value })}
               placeholder="fc-..."
@@ -57,47 +57,46 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h3 className="text-lg font-semibold text-white">Appearance</h3>
-        <p className="mt-1 text-sm text-slate-400">
-          Dark mode is the default. Switch to light if you prefer higher contrast.
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-900">Appearance</h3>
+        <p className="mt-1 text-sm text-slate-500">
+          Choose the interface style stored locally on this device.
         </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-200">
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+          <button
+            type="button"
+            onClick={() => updateConfig({ theme: "light" })}
+            className={
+              config.theme !== "dark"
+                ? "rounded-full bg-orange-500 px-4 py-2 font-semibold text-white"
+                : "rounded-full border border-slate-200 px-4 py-2"
+            }
+          >
+            Light
+          </button>
           <button
             type="button"
             onClick={() => updateConfig({ theme: "dark" })}
             className={
               config.theme === "dark"
-                ? "rounded-full bg-cyan-500 px-4 py-2 font-semibold text-slate-900"
-                : "rounded-full border border-slate-700 px-4 py-2 text-slate-200"
+                ? "rounded-full bg-slate-900 px-4 py-2 font-semibold text-white"
+                : "rounded-full border border-slate-200 px-4 py-2"
             }
           >
             Dark
           </button>
-          <button
-            type="button"
-            onClick={() => updateConfig({ theme: "light" })}
-            className={
-              config.theme === "light"
-                ? "rounded-full bg-cyan-500 px-4 py-2 font-semibold text-slate-900"
-                : "rounded-full border border-slate-700 px-4 py-2 text-slate-200"
-            }
-          >
-            Light
-          </button>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-rose-500/60 bg-rose-500/10 p-6">
-        <h3 className="text-lg font-semibold text-rose-100">Storage</h3>
-        <p className="mt-1 text-sm text-rose-100/80">
-          Clear all locally stored credentials and preferences. You will need to
-          re-enter the server URL afterwards.
+      <section className="rounded-3xl border border-rose-200 bg-rose-50 p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-rose-700">Storage</h3>
+        <p className="mt-1 text-sm text-rose-700/80">
+          Clear all locally stored credentials and preferences. You will need to re-enter the server URL afterwards.
         </p>
         <button
           type="button"
           onClick={handleClear}
-          className="mt-4 rounded-md bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-400"
+          className="mt-4 rounded-full bg-rose-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-rose-400"
         >
           Clear local storage
         </button>

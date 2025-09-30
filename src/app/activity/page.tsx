@@ -67,71 +67,79 @@ export default function ActivityPage() {
 
   if (!config.baseUrl) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-300">
-        Configure your Firecrawl server URL on the overview page to start polling
-        for activity.
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm">
+        Configure your Firecrawl server URL on the overview page to start polling for activity.
       </div>
     );
   }
 
   if (unsupported) {
     return (
-      <div className="rounded-2xl border border-amber-500/60 bg-amber-500/10 p-6 text-sm text-amber-100">
-        This Firecrawl deployment does not expose `/v2/activity`. Polling has been
-        disabled.
+      <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-700 shadow-sm">
+        This Firecrawl deployment does not expose `/v2/activity`. Polling has been disabled.
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-white">Recent jobs</h2>
+      {Array.isArray(data) &&
+        data.some((item) => {
+          const source = (item as Record<string, unknown>).source;
+          return typeof source === "string" && source.startsWith("v1/");
+        }) && (
+          <div className="rounded-3xl border border-sky-200 bg-sky-50 p-4 text-xs text-sky-700">
+            Showing live data from legacy `/v1` endpoints. Results include active crawls and
+            queue status only.
+          </div>
+        )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-slate-900">Recent jobs</h2>
         <button
           type="button"
           onClick={isActive ? stop : start}
-          className="rounded-md border border-slate-700 px-3 py-1 text-xs text-slate-200 transition hover:border-cyan-400 hover:text-white"
+          className="rounded-full border border-slate-200 px-4 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
         >
           {isActive ? "Pause polling" : "Resume polling"}
         </button>
       </div>
-      <div className="overflow-hidden rounded-2xl border border-slate-800">
-        <table className="min-w-full divide-y divide-slate-800 text-sm">
-          <thead className="bg-slate-900/70 text-xs uppercase tracking-wide text-slate-400">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <table className="min-w-full divide-y divide-slate-200 text-sm text-slate-600">
+          <thead className="bg-slate-50 text-xs uppercase tracking-[0.25em] text-slate-400">
             <tr>
               <th className="px-4 py-3 text-left">Type</th>
               <th className="px-4 py-3 text-left">Status</th>
-              <th className="px-4 py-3 text-left">URL/ID</th>
+              <th className="px-4 py-3 text-left">URL / ID</th>
               <th className="px-4 py-3 text-left">Created</th>
               <th className="px-4 py-3 text-left">Updated</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-900/70 bg-slate-950/50">
+          <tbody className="divide-y divide-slate-100 bg-white">
             {(data ?? []).map((item) => (
-              <tr key={item.id ?? `${item.jobId}-${item.createdAt}`}>
-                <td className="px-4 py-3 text-slate-200">{item.type ?? "—"}</td>
+              <tr key={item.id ?? `${item.jobId}-${item.createdAt}`} className="transition hover:bg-slate-50">
+                <td className="px-4 py-3 text-slate-700">{item.type ?? "—"}</td>
                 <td className="px-4 py-3">
-                  <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-200">
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
                     {item.status ?? "unknown"}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-slate-400">
+                <td className="px-4 py-3 text-slate-500">
                   {item.url ?? item.jobId ?? "—"}
                 </td>
-                <td className="px-4 py-3 text-slate-400">{formatDate(item.createdAt)}</td>
-                <td className="px-4 py-3 text-slate-400">{formatDate(item.updatedAt)}</td>
+                <td className="px-4 py-3 text-slate-500">{formatDate(item.createdAt)}</td>
+                <td className="px-4 py-3 text-slate-500">{formatDate(item.updatedAt)}</td>
               </tr>
             ))}
             {!data?.length && !isLoading && !error && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
+                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
                   No activity has been reported yet.
                 </td>
               </tr>
             )}
             {error && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-rose-300">
+                <td colSpan={5} className="px-4 py-6 text-center text-rose-500">
                   {error.message}
                 </td>
               </tr>
