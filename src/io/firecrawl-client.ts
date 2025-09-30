@@ -43,8 +43,11 @@ type Method = "GET" | "POST";
 
 type RequestInitWithTimeout = RequestInit & { timeoutMs?: number };
 
-const buildHeaders = (apiKey?: string) => {
-  const headers = new Headers({ "Content-Type": "application/json" });
+const buildHeaders = (method: Method, apiKey?: string) => {
+  const headers = new Headers();
+  if (method === "POST") {
+    headers.set("Content-Type", "application/json");
+  }
   if (apiKey) {
     headers.set("Authorization", `Bearer ${apiKey}`);
   }
@@ -94,7 +97,7 @@ const request = async <T>(
   options?: RequestOptions,
 ): Promise<T> => {
   const url = ensureUrl(config.baseUrl, path);
-  const headers = buildHeaders(config.apiKey);
+  const headers = buildHeaders(method, config.apiKey);
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const signal = withTimeout(options?.signal, timeoutMs);
 

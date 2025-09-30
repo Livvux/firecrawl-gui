@@ -19,7 +19,7 @@ Visit [http://localhost:3000](http://localhost:3000) and enter your Firecrawl ba
 
 ## Features
 
-- **Overview** – configure the base URL/key and run a `GET /v2/health` check.
+- **Overview** – configure die Verbindung; falls dein Self-Host kein `GET /v2/health` anbietet, überspringen wir den Check automatisch.
 - **Playground** – JSON request editor + presets for:
   - `POST /v2/scrape`
   - `POST /v2/search`
@@ -50,7 +50,7 @@ Configuration (base URL, API key, theme) is stored in `localStorage` under the k
 
 Endpoint | Method | Notes
 ---|---|---
-`/v2/health` | GET | Confirms connectivity and reports status/version.
+`/v2/health` | GET | Confirms connectivity and reports status/version (nicht jede Self-Hosted-Installation stellt diesen Endpoint bereit).
 `/v2/scrape` | POST | Accepts `ScrapePayload` (URL plus optional formats/content flags).
 `/v2/search` | POST | Query the web; optional `scrapeOptions` mirrors scrape payload options.
 `/v2/crawl` | POST | Starts an async crawl job; responses typically include a job ID.

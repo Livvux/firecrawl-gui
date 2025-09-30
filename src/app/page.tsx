@@ -36,6 +36,8 @@ export default function OverviewPage() {
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [validationMessage, setValidationMessage] = useState<string | undefined>();
   const [isChecking, setIsChecking] = useState(false);
+  const [healthUnsupported, setHealthUnsupported] = useState(false);
+  const [healthNotice, setHealthNotice] = useState<string | undefined>();
 
   const client = useMemo(() => {
     if (!config.baseUrl) {
@@ -49,6 +51,8 @@ export default function OverviewPage() {
 
   const handleCheck = async () => {
     setErrorMessage(undefined);
+    setHealthUnsupported(false);
+    setHealthNotice(undefined);
     const result = validateBaseUrl(config.baseUrl);
     if (!result.valid) {
       setValidationMessage(result.reason);
@@ -68,7 +72,16 @@ export default function OverviewPage() {
     } catch (error) {
       setHealth(undefined);
       if (error instanceof FirecrawlError) {
-        setErrorMessage(`${error.message} (${error.status || "network"})`);
+        if (error.status === 404) {
+          setHealthUnsupported(true);
+          setErrorMessage(undefined);
+          setHealthNotice(
+            "Self-hosted Instanzen liefern häufig 404 auf /v2/health. Wir haben den Check übersprungen – Sende einfach eine Testanfrage im Playground.",
+          );
+          setHealth({ status: "unknown" });
+        } else {
+          setErrorMessage(`${error.message} (${error.status || "network"})`);
+        }
       } else {
         setErrorMessage(error instanceof Error ? error.message : String(error));
       }
@@ -88,6 +101,8 @@ export default function OverviewPage() {
         validationMessage={validationMessage}
         lastHealth={health}
         errorMessage={errorMessage}
+        healthUnsupported={healthUnsupported}
+        healthNotice={healthNotice}
       />
 
       <section className="grid gap-4 md:grid-cols-2">

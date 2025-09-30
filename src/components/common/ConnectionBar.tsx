@@ -13,6 +13,8 @@ interface ConnectionBarProps {
   validationMessage?: string;
   lastHealth?: HealthResponse;
   errorMessage?: string;
+  healthUnsupported?: boolean;
+  healthNotice?: string;
 }
 
 export const ConnectionBar = ({
@@ -24,6 +26,8 @@ export const ConnectionBar = ({
   validationMessage,
   lastHealth,
   errorMessage,
+  healthUnsupported,
+  healthNotice,
 }: ConnectionBarProps) => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -98,6 +102,11 @@ export const ConnectionBar = ({
                 v{lastHealth.version}
               </span>
             )}
+            {healthUnsupported && (
+              <span className="text-xs text-amber-300">
+                Endpoint nicht vorhanden
+              </span>
+            )}
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <button
@@ -112,6 +121,11 @@ export const ConnectionBar = ({
             )}
           </div>
         </div>
+        {healthNotice && (
+          <p className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+            {healthNotice}
+          </p>
+        )}
       </div>
     </form>
   );
