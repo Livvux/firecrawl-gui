@@ -19,18 +19,18 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Server settings</h2>
-        <p className="mt-1 text-sm text-slate-500">
+      <section className="rounded-3xl border border-subtle bg-surface p-6 shadow-subtle">
+        <h2 className="text-lg font-semibold text-primary">Server settings</h2>
+        <p className="mt-1 text-sm text-secondary">
           Update the base URL and API key used for all requests.
         </p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.25em] text-slate-400">
+            <span className="text-xs font-medium uppercase tracking-[0.25em] text-secondary">
               Server base URL
             </span>
             <input
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-inner focus:border-orange-400"
+              className="rounded-2xl border border-subtle bg-surface px-4 py-2.5 text-sm text-primary shadow-inner focus:border-orange-400"
               value={config.baseUrl}
               onChange={(event) => updateConfig({ baseUrl: event.target.value })}
               onBlur={handleBlur}
@@ -42,11 +42,11 @@ export default function SettingsPage() {
             )}
           </label>
           <label className="flex flex-col gap-2">
-            <span className="text-xs font-medium uppercase tracking-[0.25em] text-slate-400">
+            <span className="text-xs font-medium uppercase tracking-[0.25em] text-secondary">
               API key (optional)
             </span>
             <input
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-inner focus:border-orange-400"
+              className="rounded-2xl border border-subtle bg-surface px-4 py-2.5 text-sm text-primary shadow-inner focus:border-orange-400"
               value={config.apiKey}
               onChange={(event) => updateConfig({ apiKey: event.target.value })}
               placeholder="fc-..."
@@ -57,19 +57,19 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900">Appearance</h3>
-        <p className="mt-1 text-sm text-slate-500">
+      <section className="rounded-3xl border border-subtle bg-surface p-6 shadow-subtle">
+        <h3 className="text-lg font-semibold text-primary">Appearance</h3>
+        <p className="mt-1 text-sm text-secondary">
           Choose the interface style stored locally on this device.
         </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-secondary">
           <button
             type="button"
             onClick={() => updateConfig({ theme: "light" })}
             className={
               config.theme !== "dark"
                 ? "rounded-full bg-orange-500 px-4 py-2 font-semibold text-white"
-                : "rounded-full border border-slate-200 px-4 py-2"
+                : "rounded-full border border-subtle px-4 py-2"
             }
           >
             Light
@@ -80,7 +80,7 @@ export default function SettingsPage() {
             className={
               config.theme === "dark"
                 ? "rounded-full bg-slate-900 px-4 py-2 font-semibold text-white"
-                : "rounded-full border border-slate-200 px-4 py-2"
+                : "rounded-full border border-subtle px-4 py-2"
             }
           >
             Dark

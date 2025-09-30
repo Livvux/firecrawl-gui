@@ -19,7 +19,7 @@ export const Navigation = () => {
 
   return (
     <nav className="flex flex-wrap gap-2 text-sm">
-      <div className="flex flex-wrap items-center gap-1 rounded-full border border-slate-200 bg-white/70 p-1 shadow-sm">
+      <div className="flex flex-wrap items-center gap-1 rounded-full border border-subtle bg-surface-subtle p-1 shadow-subtle">
         {navItems.map((item) => {
           const isActive =
             item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href);
@@ -31,7 +31,7 @@ export const Navigation = () => {
                 "rounded-full px-4 py-1.5 transition focus-visible:outline-none",
                 isActive
                   ? "bg-orange-500 text-white shadow-sm"
-                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
+                  : "text-secondary hover:bg-surface-muted hover:text-primary",
               )}
             >
               {item.label}
