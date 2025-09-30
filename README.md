@@ -1,4 +1,4 @@
-# Firecrawl Console
+# Firecrawl Selfhosted GUI
 
 A minimal Next.js (App Router) client for operating a self-hosted Firecrawl v2 instance. The app stores configuration in local storage only and ships with JSON editors for each core endpoint.
 
