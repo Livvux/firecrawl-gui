@@ -2,21 +2,35 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ReactNode } from "react";
 import { Navigation } from "@/components/layout/Navigation";
+import { LOCAL_CONFIG_STORAGE_KEY } from "@/domain/config/constants";
 import "./globals.css";
 
 const themeBootstrapScript = `(() => {
+  const storageKey = '${LOCAL_CONFIG_STORAGE_KEY}';
+  const getSystemTheme = () => {
+    try {
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    } catch (error) {
+      return 'dark';
+    }
+  };
+  const applyTheme = (theme) => {
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.classList.toggle('dark', theme === 'dark');
+    root.classList.toggle('light', theme === 'light');
+  };
+  let theme = getSystemTheme();
   try {
-    const raw = localStorage.getItem('firecrawl-config');
-    const parsed = raw ? JSON.parse(raw) : undefined;
-    const theme = parsed?.theme === 'light' ? 'light' : 'dark';
-    const root = document.documentElement;
-    root.classList.remove(theme === 'light' ? 'dark' : 'light');
-    root.classList.add(theme);
+    const raw = localStorage.getItem(storageKey);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      theme = parsed?.theme === 'light' ? 'light' : parsed?.theme === 'dark' ? 'dark' : getSystemTheme();
+    }
   } catch (error) {
-    const root = document.documentElement;
-    root.classList.remove('light');
-    root.classList.add('dark');
+    theme = getSystemTheme();
   }
+  applyTheme(theme);
 })();`;
 
 const geistSans = Geist({

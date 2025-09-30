@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { LOCAL_CONFIG_STORAGE_KEY } from "@/domain/config/constants";
 
 type ThemePreference = "dark" | "light";
 
@@ -10,8 +11,6 @@ export interface LocalConfig {
   theme: ThemePreference;
 }
 
-const STORAGE_KEY = "firecrawl-config";
-
 export const defaultConfig: LocalConfig = {
   baseUrl: "",
   apiKey: "",
@@ -19,6 +18,23 @@ export const defaultConfig: LocalConfig = {
 };
 
 const isBrowser = typeof window !== "undefined";
+
+const getSystemTheme = (): ThemePreference => {
+  if (!isBrowser || typeof window.matchMedia !== "function") {
+    return defaultConfig.theme;
+  }
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+};
+
+const applyThemeToDocument = (theme: ThemePreference) => {
+  if (!isBrowser) {
+    return;
+  }
+  const root = document.documentElement;
+  root.dataset.theme = theme;
+  root.classList.toggle("dark", theme === "dark");
+  root.classList.toggle("light", theme === "light");
+};
 
 export const validateBaseUrl = (value: string) => {
   if (!value) {
@@ -40,20 +56,22 @@ const readConfig = (): LocalConfig => {
   if (!isBrowser) {
     return defaultConfig;
   }
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = window.localStorage.getItem(LOCAL_CONFIG_STORAGE_KEY);
   if (!raw) {
-    return defaultConfig;
+    return { ...defaultConfig, theme: getSystemTheme() };
   }
   try {
     const parsed = JSON.parse(raw) as Partial<LocalConfig>;
+    const themePreference =
+      parsed.theme === "light" ? "light" : parsed.theme === "dark" ? "dark" : undefined;
     return {
       baseUrl: parsed.baseUrl ?? defaultConfig.baseUrl,
       apiKey: parsed.apiKey ?? defaultConfig.apiKey,
-      theme: (parsed.theme === "light" ? "light" : "dark") as ThemePreference,
+      theme: themePreference ?? getSystemTheme(),
     };
   } catch (error) {
     console.warn("Failed to parse config from storage", error);
-    return defaultConfig;
+    return { ...defaultConfig, theme: getSystemTheme() };
   }
 };
 
@@ -61,7 +79,7 @@ const writeConfig = (config: LocalConfig) => {
   if (!isBrowser) {
     return;
   }
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  window.localStorage.setItem(LOCAL_CONFIG_STORAGE_KEY, JSON.stringify(config));
 };
 
 export const useLocalConfig = () => {
@@ -84,17 +102,10 @@ export const useLocalConfig = () => {
   }, [config, isHydrated]);
 
   useEffect(() => {
-    if (!isBrowser || !isHydrated) {
+    if (!isHydrated) {
       return;
     }
-    const root = document.documentElement;
-    if (config.theme === "light") {
-      root.classList.add("light");
-      root.classList.remove("dark");
-    } else {
-      root.classList.add("dark");
-      root.classList.remove("light");
-    }
+    applyThemeToDocument(config.theme);
   }, [config.theme, isHydrated]);
 
   const updateConfig = useCallback((partial: Partial<LocalConfig>) => {
@@ -102,10 +113,12 @@ export const useLocalConfig = () => {
   }, []);
 
   const clearConfig = useCallback(() => {
-    setConfig(defaultConfig);
+    const resetConfig = { ...defaultConfig, theme: getSystemTheme() };
+    setConfig(resetConfig);
     if (isBrowser) {
-      window.localStorage.removeItem(STORAGE_KEY);
+      window.localStorage.removeItem(LOCAL_CONFIG_STORAGE_KEY);
     }
+    applyThemeToDocument(resetConfig.theme);
   }, []);
 
   const normalizedBaseUrl = useMemo(() => {
