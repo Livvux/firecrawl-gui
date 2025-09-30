@@ -2,6 +2,9 @@
 
 A minimal Next.js (App Router) client for operating a self-hosted Firecrawl v2 instance. The app stores configuration in local storage only and ships with JSON editors for each core endpoint.
 
+<img width="1188" height="653" alt="firecrawl-gui" src="https://github.com/user-attachments/assets/12b0eb61-06b2-4130-9138-9f4afb43884c" />
+
+
 ## Prerequisites
 
 - Node.js 20+
