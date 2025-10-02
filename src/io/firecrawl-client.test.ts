@@ -116,6 +116,82 @@ describe("firecrawlClient", () => {
     expect(headers.get("Content-Type")).toBe("application/json");
   });
 
+  it("targets the map endpoint for map requests", async () => {
+    mockFetch.mockResolvedValue(
+      new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const client = createFirecrawlClient({ baseUrl: "https://api.local" });
+    await client.map({ url: "https://example.com", sitemap: "include", limit: 10 });
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://api.local/v2/map");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe(
+      JSON.stringify({ url: "https://example.com", sitemap: "include", limit: 10 }),
+    );
+  });
+
+  it("posts search payloads to /v2/search", async () => {
+    mockFetch.mockResolvedValue(
+      new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const client = createFirecrawlClient({ baseUrl: "https://api.local" });
+    await client.search({ query: "firecrawl", limit: 5, lang: "en" });
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://api.local/v2/search");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe(JSON.stringify({ query: "firecrawl", limit: 5, lang: "en" }));
+  });
+
+  it("posts crawl payloads to /v2/crawl", async () => {
+    mockFetch.mockResolvedValue(
+      new Response(JSON.stringify({ jobId: "crawl-1" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const client = createFirecrawlClient({ baseUrl: "https://api.local" });
+    await client.crawl({ url: "https://example.com", limit: 10 });
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://api.local/v2/crawl");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe(JSON.stringify({ url: "https://example.com", limit: 10 }));
+  });
+
+  it("posts extract payloads to /v2/extract", async () => {
+    mockFetch.mockResolvedValue(
+      new Response(JSON.stringify({ jobId: "extract-1" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const client = createFirecrawlClient({ baseUrl: "https://api.local" });
+    await client.extract({ urls: ["https://example.com"], prompt: "Summarise" });
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://api.local/v2/extract");
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe(
+      JSON.stringify({ urls: ["https://example.com"], prompt: "Summarise" }),
+    );
+  });
+
   it("throws when every health probe fails", async () => {
     mockFetch
       .mockResolvedValueOnce(

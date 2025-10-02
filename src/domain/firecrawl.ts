@@ -44,6 +44,36 @@ export interface SearchResponse {
   message?: string;
 }
 
+export type SitemapMode = "include" | "only" | "exclude";
+
+export interface MapLocationPreference {
+  country?: string;
+  languages?: string[];
+}
+
+export interface MapPayload {
+  url: string;
+  sitemap?: SitemapMode;
+  includeSubdomains?: boolean;
+  ignoreQueryParameters?: boolean;
+  limit?: number;
+  timeout?: number;
+  location?: MapLocationPreference;
+  search?: string;
+}
+
+export interface MapLinkSummary {
+  url: string;
+  title?: string;
+  description?: string;
+}
+
+export interface MapResponse {
+  success?: boolean;
+  links?: MapLinkSummary[];
+  message?: string;
+}
+
 export interface CrawlPayload {
   url: string;
   maxDepth?: number;

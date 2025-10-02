@@ -6,8 +6,10 @@ import {
   CrawlPayload,
   FirecrawlFormat,
   JsonValue,
+  MapPayload,
   ScrapePayload,
   SearchPayload,
+  SitemapMode,
 } from "@/domain/firecrawl";
 import { createFirecrawlClient, FirecrawlError } from "@/io/firecrawl-client";
 import { useLocalConfig } from "@/state/useLocalConfig";
@@ -63,6 +65,14 @@ interface SearchFormState {
   onlyMainContent: boolean;
 }
 
+interface MapFormState {
+  url: string;
+  limit: string;
+  sitemap: SitemapMode;
+  includeSubdomains: boolean;
+  ignoreQueryParameters: boolean;
+}
+
 interface CrawlFormState {
   url: string;
   limit: string;
@@ -89,13 +99,12 @@ const DEFAULT_SEARCH_STATE: SearchFormState = {
   onlyMainContent: true,
 };
 
-const DEFAULT_MAP_STATE: CrawlFormState = {
+const DEFAULT_MAP_STATE: MapFormState = {
   url: "https://example.com/docs",
-  limit: "20",
-  maxDepth: "1",
-  deduplicate: true,
+  limit: "200",
+  sitemap: "include",
   includeSubdomains: false,
-  allowExternalLinks: false,
+  ignoreQueryParameters: false,
 };
 
 const DEFAULT_CRAWL_STATE: CrawlFormState = {
@@ -134,6 +143,26 @@ const buildSearchPayload = (state: SearchFormState): SearchPayload => ({
       }
     : undefined,
 });
+
+const buildMapPayload = (state: MapFormState): MapPayload => {
+  const limit = parsePositiveInt(state.limit);
+  const payload: MapPayload = {
+    url: state.url.trim(),
+    sitemap: state.sitemap,
+  };
+
+  if (limit !== undefined) {
+    payload.limit = limit;
+  }
+  if (state.includeSubdomains) {
+    payload.includeSubdomains = true;
+  }
+  if (state.ignoreQueryParameters) {
+    payload.ignoreQueryParameters = true;
+  }
+
+  return payload;
+};
 
 const buildCrawlPayload = (state: CrawlFormState): CrawlPayload => ({
   url: state.url.trim(),
@@ -458,6 +487,122 @@ const SearchCard = ({
   );
 };
 
+const MapCard = ({
+  state,
+  onStateChange,
+  onSubmit,
+  onPreview,
+  isLoading,
+  meta,
+}: {
+  state: MapFormState;
+  onStateChange: (next: MapFormState) => void;
+  onSubmit: (payload: MapPayload) => Promise<void>;
+  onPreview: (payload: MapPayload) => void;
+  isLoading: boolean;
+  meta: OperationMeta;
+}) => {
+  const payload = buildMapPayload(state);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await onSubmit(payload);
+  };
+
+  const handleChange = <K extends keyof MapFormState>(key: K) =>
+    (value: MapFormState[K]) => {
+      onStateChange({ ...state, [key]: value });
+    };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-200/50"
+    >
+      <div className="flex flex-col gap-6">
+        <OperationHeader {...meta} />
+        <label className="flex flex-col gap-2">
+          <span className="text-xs font-medium uppercase tracking-[0.25em] text-slate-400">
+            URL or pattern
+          </span>
+          <input
+            type="text"
+            required
+            value={state.url}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              handleChange("url")(event.target.value)
+            }
+            placeholder="https://example.com/docs"
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-inner focus:border-orange-400"
+          />
+        </label>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
+          <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
+            Limit
+            <input
+              type="number"
+              min={1}
+              value={state.limit}
+              onChange={(event) => handleChange("limit")(event.target.value)}
+              className="w-20 rounded-full border border-slate-200 bg-white px-2 py-1 text-sm"
+            />
+          </label>
+          <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
+            Sitemap
+            <select
+              value={state.sitemap}
+              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                handleChange("sitemap")(event.target.value as SitemapMode)
+              }
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm"
+            >
+              <option value="include">Include sitemap</option>
+              <option value="only">Only sitemap URLs</option>
+              <option value="exclude">Ignore sitemap</option>
+            </select>
+          </label>
+          <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
+            <input
+              type="checkbox"
+              checked={state.includeSubdomains}
+              onChange={(event) => handleChange("includeSubdomains")(event.target.checked)}
+              className="h-4 w-4 accent-orange-500"
+            />
+            Include subdomains
+          </label>
+          <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
+            <input
+              type="checkbox"
+              checked={state.ignoreQueryParameters}
+              onChange={(event) =>
+                handleChange("ignoreQueryParameters")(event.target.checked)
+              }
+              className="h-4 w-4 accent-orange-500"
+            />
+            Ignore query params
+          </label>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => onPreview(payload)}
+            className="rounded-full border border-slate-200 px-4 py-2 text-sm text-slate-600 transition hover:border-slate-300"
+          >
+            Get code
+          </button>
+          <button
+            type="submit"
+            className={cn(accentButtonClass, isLoading && "cursor-not-allowed opacity-70")}
+            disabled={isLoading}
+          >
+            {isLoading ? "Sending..." : meta.actionLabel}
+          </button>
+        </div>
+      </div>
+    </form>
+  );
+};
+
 const CrawlCard = ({
   state,
   onStateChange,
@@ -614,7 +759,7 @@ export default function PlaygroundPage() {
 
   const runRequest = async (
     operation: OperationId,
-    payload: ScrapePayload | SearchPayload | CrawlPayload,
+    payload: ScrapePayload | SearchPayload | MapPayload | CrawlPayload,
   ) => {
     showPreview(payload);
     if (!client) {
@@ -637,7 +782,11 @@ export default function PlaygroundPage() {
           setResponse(result as JsonValue);
           break;
         }
-        case "map":
+        case "map": {
+          const result = await client.map(payload as MapPayload);
+          setResponse(result as JsonValue);
+          break;
+        }
         case "crawl": {
           const result = await client.crawl(payload as CrawlPayload);
           setResponse(result as JsonValue);
@@ -705,7 +854,7 @@ export default function PlaygroundPage() {
           />
         )}
         {activeOperation === "map" && (
-          <CrawlCard
+          <MapCard
             state={mapState}
             onStateChange={setMapState}
             onSubmit={(payload) => runRequest("map", payload)}

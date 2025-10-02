@@ -5,6 +5,8 @@ import {
   CrawlResponse,
   ExtractPayload,
   ExtractResponse,
+  MapPayload,
+  MapResponse,
   FirecrawlErrorShape,
   HealthResponse,
   JsonObject,
@@ -534,6 +536,14 @@ export const createFirecrawlClient = (config: FirecrawlClientConfig) => {
       request<SearchResponse>(
         safeConfig,
         "/v2/search",
+        "POST",
+        payload,
+        getOptions(options),
+      ),
+    map: (payload: MapPayload, options?: RequestOptions) =>
+      request<MapResponse>(
+        safeConfig,
+        "/v2/map",
         "POST",
         payload,
         getOptions(options),
